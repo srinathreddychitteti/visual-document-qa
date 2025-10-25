@@ -1,0 +1,16 @@
+# Environment variables
+.env
+
+# Python virtual environment
+docParserenv/
+.docParserenv/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# ChromaDB persistent storage
+chroma_data/
+
+# Temporary images from parser.py
+temp_images/
