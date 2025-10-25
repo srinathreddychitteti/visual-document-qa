@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-load_dotenv()  # Load environment variables FIRST
+load_dotenv() 
 
 import asyncio
 import sys
@@ -11,17 +11,17 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from fastapi import FastAPI
 
-# --- Initialize MCP server ---
+
 mcp_server = FastMCP(name="visualDocQAServer")
 mcp_server.title = "Visual Document Q&A MCP Server"
 mcp_server.description = "An MCP server that allows an AI to ask questions about PDFs."
 
-# --- Input schema for the tool ---
+
 class VisualDocQAInputs(BaseModel):
     file_path: str
     question: str
 
-# --- Define the MCP tool ---
+
 @mcp_server.tool(
     name="query_visual_document",
     description="Answers a user's question about a specific PDF document. "
@@ -44,29 +44,23 @@ async def visual_doc_qa_tool(inputs: VisualDocQAInputs) -> str:
         print(f"Error during PDF processing: {e}", file=sys.stderr)
         return f"An error occurred while processing the document: {e}"
 
-# --- Root route for health/info ---
+
 @mcp_server.custom_route("/", methods=["GET"])
 async def read_root(request: Request) -> JSONResponse:
     return JSONResponse(
         {"message": "Visual Document Q&A MCP Server is running. Visit /mcp for protocol info."}
     )
-
-# --- Try to locate FastAPI app inside FastMCP ---
 inner_app = None
 if hasattr(mcp_server, "fastapi_app"):
     inner_app = mcp_server.fastapi_app
 elif hasattr(mcp_server, "app"):
     inner_app = mcp_server.app
-
-# --- Create a top-level FastAPI wrapper ---
 app = FastAPI(title="VisualDocQAServer Wrapper")
 
 @app.get("/")
 async def root():
     return JSONResponse({"message": "VisualDocQAServer wrapper is running."})
 
-# If we found an inner FastAPI app, mount it.
-# Otherwise, create a placeholder endpoint for /mcp.
 if inner_app is not None:
     app.mount("/mcp", inner_app)
 else:
@@ -77,7 +71,6 @@ else:
                        "Use MCP client to connect directly."
         })
 
-# --- Run the server ---
 if __name__ == "__main__":
     print("Starting server... Access at http://127.0.0.1:8000")
     uvicorn.run(app, host="127.0.0.1", port=8000, reload=False)

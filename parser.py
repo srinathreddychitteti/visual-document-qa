@@ -16,7 +16,6 @@ def parse(path: str):
     Each call uses a unique temporary directory for extracted images to avoid collisions.
     """
     print(f'Parsing {path}')
-    # unique temp dir for concurrency safety
     imageOut = os.path.join("temp_images", str(uuid.uuid4()))
     os.makedirs(imageOut, exist_ok=True)
 
@@ -27,12 +26,9 @@ def parse(path: str):
 
     try:
         for pageNum, page in enumerate(doc):
-            # append text (do not overwrite)
             page_text = page.get_text()
             if page_text:
                 all_text.append(page_text)
-
-            # get images (may be empty)
             try:
                 imageList = page.get_images(full=True)
             except Exception as e:
