@@ -83,7 +83,7 @@ def main():
     ap.add_argument("--fake", action="store_true")
     args = ap.parse_args()
     os.makedirs(args.out, exist_ok=True)
-    questions = json.load(open(args.questions))
+    questions = json.load(open(args.questions, encoding="utf-8"))
     if args.fake:
         install_fakes()
 
@@ -148,15 +148,15 @@ def main():
                          for cat, c in per_cat.items()}
 
     json.dump(dict(retrieval_k=logic.settings.retrieval_k, quality=results, cost=cost, unindexable=unindexable,
-                   fake=args.fake), open(os.path.join(args.out, "results.json"), "w"), indent=2)
-    with open(os.path.join(args.out, "answers.csv"), "w", newline="") as f:
+                   fake=args.fake), open(os.path.join(args.out, "results.json"), "w", encoding="utf-8"), indent=2)
+    with open(os.path.join(args.out, "answers.csv"), "w", newline="", encoding="utf-8") as f:
         w = csv.DictWriter(f, fieldnames=list(rows[0])); w.writeheader(); w.writerows(rows)
 
     def fmt(x):
         return "n/a" if x is None else f"{x:.2f}"
     names = {"full": "Full pipeline", "text_only": "Text-only ablation"}
     cats = {"text": "Text", "chart": "Chart", "table": "Table", "scan": "Scanned page"}
-    with open(os.path.join(args.out, "tables.tex"), "w") as f:
+    with open(os.path.join(args.out, "tables.tex"), "w", encoding="utf-8") as f:
         f.write("% Table 5.3 rows: Configuration & Category & Hit@k & Accuracy & CitePrec\n")
         for mode in ("full", "text_only"):
             for cat, label in cats.items():
@@ -168,7 +168,7 @@ def main():
         for c in cost:
             f.write(f"{c['pdf']} & {c['pages']} & {c['vision_calls']} & "
                     f"{c['first_s']} & {c['cached_s']} \\\\\n")
-    print(open(os.path.join(args.out, "tables.tex")).read())
+    print(open(os.path.join(args.out, "tables.tex"), encoding="utf-8").read())
 
 
 if __name__ == "__main__":
