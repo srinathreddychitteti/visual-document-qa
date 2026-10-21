@@ -1,0 +1,104 @@
+{
+  "drawing_counts": {
+    "vector_charts.pdf": {
+      "1": 0,
+      "2": 26,
+      "3": 31,
+      "4": 28,
+      "5": 49
+    },
+    "ruled_tables.pdf": {
+      "1": 9,
+      "2": 14,
+      "3": 21
+    },
+    "raster_images.pdf": {
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 0
+    },
+    "scanned.pdf": {
+      "1": 0,
+      "2": 0,
+      "3": 0
+    }
+  },
+  "sweep": [
+    {
+      "threshold": 10,
+      "pages": 15,
+      "vision_calls": 12,
+      "rendered_vector": 6,
+      "chart_pages": 4,
+      "chart_detected": 4,
+      "false_vector_renders": 2,
+      "scanned_pages": 3,
+      "scanned_detected": 3,
+      "raster_charts": 2,
+      "raster_extracted": 2,
+      "embedded_total": 3,
+      "parse_seconds": 0.4971878780000054
+    },
+    {
+      "threshold": 20,
+      "pages": 15,
+      "vision_calls": 11,
+      "rendered_vector": 5,
+      "chart_pages": 4,
+      "chart_detected": 4,
+      "false_vector_renders": 1,
+      "scanned_pages": 3,
+      "scanned_detected": 3,
+      "raster_charts": 2,
+      "raster_extracted": 2,
+      "embedded_total": 3,
+      "parse_seconds": 0.5120120159999715
+    },
+    {
+      "threshold": 40,
+      "pages": 15,
+      "vision_calls": 7,
+      "rendered_vector": 1,
+      "chart_pages": 4,
+      "chart_detected": 1,
+      "false_vector_renders": 0,
+      "scanned_pages": 3,
+      "scanned_detected": 3,
+      "raster_charts": 2,
+      "raster_extracted": 2,
+      "embedded_total": 3,
+      "parse_seconds": 0.2551343549999956
+    },
+    {
+      "threshold": 80,
+      "pages": 15,
+      "vision_calls": 6,
+      "rendered_vector": 0,
+      "chart_pages": 4,
+      "chart_detected": 0,
+      "false_vector_renders": 0,
+      "scanned_pages": 3,
+      "scanned_detected": 3,
+      "raster_charts": 2,
+      "raster_extracted": 2,
+      "embedded_total": 3,
+      "parse_seconds": 0.20628170199998408
+    },
+    {
+      "threshold": 0,
+      "pages": 15,
+      "vision_calls": 6,
+      "rendered_vector": 0,
+      "chart_pages": 4,
+      "chart_detected": 0,
+      "false_vector_renders": 0,
+      "scanned_pages": 3,
+      "scanned_detected": 3,
+      "raster_charts": 2,
+      "raster_extracted": 2,
+      "embedded_total": 3,
+      "parse_seconds": 0.21282568199995922
+    }
+  ]
+}

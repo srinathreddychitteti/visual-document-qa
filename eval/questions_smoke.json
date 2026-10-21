@@ -1,0 +1,6 @@
+[
+  {"id": "s1", "pdf": "vector_charts.pdf", "category": "chart", "question": "What does the bar chart with 12 points show?", "answer": "A bar chart with 12 points", "pages": [3]},
+  {"id": "s2", "pdf": "vector_charts.pdf", "category": "text", "question": "What is summarised for each region?", "answer": "Revenue, operating cost and headcount", "pages": [1]},
+  {"id": "s3", "pdf": "ruled_tables.pdf", "category": "table", "question": "What is in the largest table?", "answer": "Numbers 0 to 69", "pages": [3]},
+  {"id": "s4", "pdf": "scanned.pdf", "category": "scan", "question": "What is the title of the second scanned page?", "answer": "Scanned page 2", "pages": [2]}
+]

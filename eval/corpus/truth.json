@@ -1,0 +1,62 @@
+{
+  "vector_charts.pdf": {
+    "1": {
+      "content": "text"
+    },
+    "2": {
+      "content": "vector_chart",
+      "detail": "bar-4"
+    },
+    "3": {
+      "content": "vector_chart",
+      "detail": "bar-12"
+    },
+    "4": {
+      "content": "vector_chart",
+      "detail": "line-8"
+    },
+    "5": {
+      "content": "vector_chart",
+      "detail": "line-30"
+    }
+  },
+  "ruled_tables.pdf": {
+    "1": {
+      "content": "table_vector",
+      "detail": "4x3"
+    },
+    "2": {
+      "content": "table_vector",
+      "detail": "8x4"
+    },
+    "3": {
+      "content": "table_vector",
+      "detail": "14x5"
+    }
+  },
+  "raster_images.pdf": {
+    "1": {
+      "content": "text"
+    },
+    "2": {
+      "content": "raster_chart"
+    },
+    "3": {
+      "content": "text"
+    },
+    "4": {
+      "content": "raster_chart"
+    }
+  },
+  "scanned.pdf": {
+    "1": {
+      "content": "scanned"
+    },
+    "2": {
+      "content": "scanned"
+    },
+    "3": {
+      "content": "scanned"
+    }
+  }
+}
