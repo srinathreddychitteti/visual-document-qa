@@ -1,76 +1,103 @@
-from dotenv import load_dotenv
-load_dotenv() 
+"""MCP server that exposes the document Q&A pipeline as tools for AI agents.
 
+Run over HTTP (default, endpoint http://127.0.0.1:8000/mcp):
+    python main.py
+
+Run over stdio (for clients such as Claude Desktop that launch the server):
+    python main.py --transport stdio
+"""
+
+import argparse
 import asyncio
+import logging
+import os
 import sys
-import uvicorn
-from pydantic import BaseModel
+from dataclasses import asdict
+
 from fastmcp import FastMCP
-from logic import get_answer_from_pdf
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from fastapi import FastAPI
 
+from config import settings
+from logic import answer_question, index_pdf
 
-mcp_server = FastMCP(name="visualDocQAServer")
-mcp_server.title = "Visual Document Q&A MCP Server"
-mcp_server.description = "An MCP server that allows an AI to ask questions about PDFs."
-
-
-class VisualDocQAInputs(BaseModel):
-    file_path: str
-    question: str
-
-
-@mcp_server.tool(
-    name="query_visual_document",
-    description="Answers a user's question about a specific PDF document. "
-                "It can read text, analyze charts, and understand tables.",
+# Log to stderr: with the stdio transport, stdout carries the MCP protocol.
+logging.basicConfig(
+    level=logging.INFO, stream=sys.stderr, format="%(levelname)s %(name)s: %(message)s"
 )
-async def visual_doc_qa_tool(inputs: VisualDocQAInputs) -> str:
-    print(f"MCP tool 'query_visual_document' called with:")
-    print(f"  File: {inputs.file_path}")
-    print(f"  Question: {inputs.question}")
+logger = logging.getLogger("visual-doc-qa")
 
-    try:
-        answer = await asyncio.to_thread(
-            get_answer_from_pdf,
-            inputs.file_path,
-            inputs.question
-        )
-        print(f"Logic returned answer: {answer}")
-        return answer
-    except Exception as e:
-        print(f"Error during PDF processing: {e}", file=sys.stderr)
-        return f"An error occurred while processing the document: {e}"
+mcp = FastMCP(
+    name="visualDocQAServer",
+    instructions=(
+        "Answers questions about local PDF files, including their charts, tables "
+        "and images. Pass an absolute path to the PDF."
+    ),
+)
 
 
-@mcp_server.custom_route("/", methods=["GET"])
-async def read_root(request: Request) -> JSONResponse:
+def _validate_pdf_path(file_path: str) -> str:
+    path = os.path.abspath(os.path.expanduser(file_path))
+    if not os.path.isfile(path):
+        raise ValueError(f"File not found: {path}")
+    if not path.lower().endswith(".pdf"):
+        raise ValueError(f"Not a PDF file: {path}")
+    return path
+
+
+@mcp.tool(
+    name="query_visual_document",
+    description=(
+        "Answer a question about a PDF document. Reads text and understands charts, "
+        "tables and images. The first call for a document indexes it (can take a "
+        "minute); later calls are fast. Returns the answer and the pages it used."
+    ),
+)
+async def query_visual_document(file_path: str, question: str) -> dict:
+    path = _validate_pdf_path(file_path)
+    logger.info("query_visual_document: %s | %s", path, question)
+    document = await asyncio.to_thread(index_pdf, path)
+    result = await asyncio.to_thread(answer_question, document, question)
+    return {
+        "answer": result.answer,
+        "sources": [asdict(s) for s in result.sources],
+        "warnings": document.warnings,
+    }
+
+
+@mcp.tool(
+    name="index_visual_document",
+    description=(
+        "Pre-index a PDF so later questions about it are answered quickly. "
+        "Returns page count and how many text chunks and visuals were indexed."
+    ),
+)
+async def index_visual_document(file_path: str) -> dict:
+    path = _validate_pdf_path(file_path)
+    logger.info("index_visual_document: %s", path)
+    document = await asyncio.to_thread(index_pdf, path)
+    return asdict(document)
+
+
+@mcp.custom_route("/", methods=["GET"])
+async def health(request: Request) -> JSONResponse:
     return JSONResponse(
-        {"message": "Visual Document Q&A MCP Server is running. Visit /mcp for protocol info."}
+        {
+            "status": "ok",
+            "message": "Visual Document Q&A MCP server. MCP endpoint: /mcp",
+            "llm_provider": settings.llm_provider,
+        }
     )
-inner_app = None
-if hasattr(mcp_server, "fastapi_app"):
-    inner_app = mcp_server.fastapi_app
-elif hasattr(mcp_server, "app"):
-    inner_app = mcp_server.app
-app = FastAPI(title="VisualDocQAServer Wrapper")
 
-@app.get("/")
-async def root():
-    return JSONResponse({"message": "VisualDocQAServer wrapper is running."})
-
-if inner_app is not None:
-    app.mount("/mcp", inner_app)
-else:
-    @app.get("/mcp")
-    async def mcp_placeholder():
-        return JSONResponse({
-            "message": "FastMCP instance is active but not ASGI-callable. "
-                       "Use MCP client to connect directly."
-        })
 
 if __name__ == "__main__":
-    print("Starting server... Access at http://127.0.0.1:8000")
-    uvicorn.run(app, host="127.0.0.1", port=8000, reload=False)
+    arg_parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    arg_parser.add_argument("--transport", choices=["http", "stdio"], default="http")
+    arg_parser.add_argument("--host", default="127.0.0.1")
+    arg_parser.add_argument("--port", type=int, default=8000)
+    args = arg_parser.parse_args()
+
+    if args.transport == "stdio":
+        mcp.run(transport="stdio", show_banner=False)
+    else:
+        mcp.run(transport="http", host=args.host, port=args.port)

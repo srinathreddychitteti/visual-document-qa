@@ -1,16 +1,22 @@
 # Environment variables
 .env
 
-# Python virtual environment
+# Python virtual environments
+.venv/
+venv/
 docParserenv/
 .docParserenv/
 
-# Python cache
+# Python / test cache
 __pycache__/
 *.pyc
+.pytest_cache/
 
-# ChromaDB persistent storage
+# ChromaDB persistent storage and cached indexes
 chroma_data/
 
 # Temporary images from parser.py
 temp_images/
+
+# FastEmbed model cache
+local_cache/
